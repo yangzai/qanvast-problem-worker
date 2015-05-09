@@ -1,28 +1,28 @@
+'use strict';
+
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 8000;
 
 app.use(bodyParser.json());
-
 
 app.get('/', function (req, res) {
   
   if (req.query.name) {
-    res.send('Hello! Nice to meet you, ' + req.query.name + '!');
-    console.log('in worker');
+    var result = 'Hello! Nice to meet you, ' + req.query.name + '!';
+    res.send(result);
+    console.log(result);
   } else {
-    res.status(400).send('Error: No name.');
+    res.status(400).send("Missing query parameter 'name'.");
   }
   
 });
 
 var server = app.listen(port, function () {
-
+  
   var host = server.address().address;
-  var port = server.address().port;
-
-  console.log('Worker app listening at http://%s:%s', host, port);
-
+  console.log('Worker listening at http://%s:%s', host, port);
+  
 });

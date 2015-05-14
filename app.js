@@ -1,25 +1,16 @@
 'use strict';
 
-var express = require('express');
-var app = express();
+var queue = require('jackrabbit')(process.env.CLOUDAMQP_URL || 'amqp://localhost');
 
-var port = process.env.PORT || 8000;
+queue.on('connected', function() {
 
-app.get('/', function (req, res) {
-  
-  if (req.query.name) {
-    var result = 'Hello! Nice to meet you, ' + req.query.name + '!';
-    res.send(result);
-    console.log(result);
-  } else {
-    res.status(400).send("Missing query parameter 'name'.");
-  }
-  
-});
+  queue.create('hello.job', function () {
+    queue.create('hello.callback', function () {
+      queue.handle('hello.job', function (job, ack) {
+        queue.publish('hello.callback', { id: job.id, message: 'Hello! Nice to meet you, ' + job.name + '!' });
+        ack();
+      });
+    });
+  });
 
-var server = app.listen(port, function () {
-  
-  var host = server.address().address;
-  console.log('Worker listening at http://%s:%s', host, port);
-  
 });
